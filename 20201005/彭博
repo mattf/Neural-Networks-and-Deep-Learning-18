@@ -1,50 +1,27 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from uii import computeCost
-
 path = r'C:\\Users\\70880\\Desktop\\ex1data2.txt'
-data2 = pd.read_csv(path, header=None, names=['Size', 'Bedrooms', 'price'])
-data2 = (data2 - data2.mean()) / data2.std()
-data2.head()
-
-cols = data2.shape[1]
-X2 = data2.iloc[:, 0:cols - 1]
-y2 = data2.iloc[:, cols - 1:cols]
-
-
-
-
-def computeCost(X, y, theta):
-    inner = np.power(((X * theta.T) - y), 2)
-    return np.sum(inner) / (2 * len(X))
-
-
-def gradientDescent(X, y, theta, alpha, iters):
-    temp = (np.zeros(theta.shape))
-    parameters = int(theta.ravel().shape[1])
-    cost = np.zeros(iters)
-
-    for i in range(iters):
-
-        error = (X * theta.T) - y
-        for j in range(parameters):
-            term = np.multiply(error, X[:, j])
-            temp[0, j] = theta[0, j] - ((alpha / len(X)) * np.sum(term))
-
-        theta = temp
-        cost[i] = computeCost(X, y, theta)
-    return theta, cost
-
-
+data = pd.read_csv(path,names = ['daxiao','shuliang','jiage'])
+data['daxiao'] = (data['daxiao'] - data['daxiao'].mean())/data['daxiao'].std()
+data['shuliang'] = (data['shuliang'] - data['shuliang'].mean())/data['shuliang'].std()
+data['jiage'] = (data['jiage'] - data['jiage'].mean())/data['jiage'].std()
+def computeCost(X,Y,theta):
+    m = X.shape[0]
+    return np.sum(np.power((X*theta.T) - Y,2))/(2*m)
+def gradientDescent(X,Y,theta,alpha,e):
+    m = X.shape[0]
+    cost = []
+    for i in range(e):
+        theta = theta - alpha/m*(X*theta.T - Y).T*X
+        cost.append(computeCost(X,Y,theta))     
+    return theta,cost
+theta = np.matrix(np.zeros(3))
+data.insert(0,'ones',1)
+cols = data.shape[1]
+X = np.matrix(data.iloc[:,0:cols-1])
+Y = np.matrix(data.iloc[:,cols-1:cols])
 alpha = 0.01
-iters = 1000
-X2 = X2.values
-y2 = y2.values
-theta2 = (np.array([0, 0, 0]))
-g2, cost2 = gradientDescent(X2, y2, theta2, alpha, iters)
-oo = computeCost(X2, y2, g2)
-print(oo)
-fig, ax = plt.subplots(figsize=(12, 8))
-ax.plot(np.arange(iters), cost2, 'r')
-plt.show()
+e = 1000
+theta,cost = gradientDescent(X,Y,theta,alpha,e)
+cost = computeCost(X,Y,theta)
+print(cost)
